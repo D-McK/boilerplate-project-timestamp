@@ -24,9 +24,35 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+const epochRegEx = /\d{5,}/;
+
 app.get("/api/:date?", (req, res) => {
-  res.json({utc: new Date(`${req.params.date}`).toString(), unix: new Date(`${req.params.date}`).getTime()})
-})
+  const date = req.params.date;
+
+  if(date === undefined){
+    res.json({
+      utc: new Date().toUTCString(),
+      unix: new Date().getTime()
+    })
+  }
+
+  if(epochRegEx.test(date)){
+    res.json({
+      utc: new Date(parseInt(date)).toUTCString(),
+      unix: new Date(parseInt(date)).getTime()
+    })
+  }
+  else{
+    if(new Date(date).toString() === "Invalid Date"){
+      res.json({error: "Invalid Date"})
+    }
+    res.json({
+      utc: new Date(date).toUTCString(),
+      unix: new Date(date).getTime()
+  })
+  }
+});
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
